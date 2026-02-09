@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String        @map("password_hash")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Category {
+  id                 String              @id @default(uuid())
+  name               String              @unique
+  icon               String              @default("tag")
+  isCustom           Boolean             @default(false) @map("is_custom")
+  transactions       Transaction[]
+  categorizationRules CategorizationRule[]
+
+  @@map("categories")
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  date        DateTime
+  description String
+  amount      Float
+  type        TransactionType
+  paymentMode PaymentMode     @map("payment_mode")
+  categoryId  String?         @map("category_id")
+  source      TransactionSource
+  hash        String   @unique
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+  @@index([hash])
+  @@map("transactions")
+}
+
+model CategorizationRule {
+  id                  String   @id @default(uuid())
+  keyword             String
+  categoryId          String   @map("category_id")
+  confidence          Float    @default(0.8)
+  createdFromUserEdit Boolean  @default(false) @map("created_from_user_edit")
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([keyword, categoryId])
+  @@map("categorization_rules")
+}
+
+enum TransactionType {
+  DEBIT
+  CREDIT
+}
+
+enum PaymentMode {
+  UPI
+  CARD
+  CASH
+  BANK
+}
+
+enum TransactionSource {
+  HDFC
+  MANUAL
+}
