@@ -114,7 +114,12 @@ export class HdfcParser implements BankParser {
   }
 
   private generateHash(date: Date, description: string, refNo: string, amount: number, type: string): string {
-    const raw = `${date.toISOString().split("T")[0]}|${description}|${refNo}|${amount.toFixed(2)}|${type}`;
+    // Use local date components to avoid timezone-dependent toISOString() shifts
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    // Normalize to handle minor formatting differences across statement downloads
+    const normalizedDesc = description.toLowerCase().replace(/\s+/g, " ").trim();
+    const normalizedRef = refNo.toLowerCase().trim();
+    const raw = `${dateStr}|${normalizedDesc}|${normalizedRef}|${amount.toFixed(2)}|${type}`;
     return crypto.createHash("sha256").update(raw).digest("hex");
   }
 }

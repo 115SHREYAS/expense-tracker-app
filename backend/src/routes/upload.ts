@@ -37,7 +37,7 @@ router.post("/hdfc", authenticate, (req: AuthRequest, res: Response, next: any) 
       return;
     }
 
-    // Check for existing hashes to avoid duplicates
+    // Layer 1: Hash-based dedup (fast, catches identical data)
     const hashes = parsed.map((t) => t.hash);
     const existing = await prisma.transaction.findMany({
       where: { hash: { in: hashes }, userId: req.userId! },
@@ -45,7 +45,42 @@ router.post("/hdfc", authenticate, (req: AuthRequest, res: Response, next: any) 
     });
     const existingHashes = new Set(existing.map((e: any) => e.hash));
 
-    const newTransactions = parsed.filter((t) => !existingHashes.has(t.hash));
+    let newTransactions = parsed.filter((t) => !existingHashes.has(t.hash));
+
+    // Layer 2: Fallback dedup by date + amount + type + description
+    // Catches duplicates when hashes differ due to normalization changes
+    // or minor formatting differences across statement downloads
+    if (newTransactions.length > 0) {
+      const dates = newTransactions.map((t) => t.date);
+      const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+      const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+      // Add 1-day buffer to handle timezone edge cases
+      minDate.setDate(minDate.getDate() - 1);
+      maxDate.setDate(maxDate.getDate() + 1);
+
+      const existingInRange = await prisma.transaction.findMany({
+        where: {
+          userId: req.userId!,
+          date: { gte: minDate, lte: maxDate },
+        },
+        select: { date: true, amount: true, type: true, description: true },
+      });
+
+      const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
+
+      const existingKeys = new Set(
+        existingInRange.map((e) => {
+          const d = e.date;
+          return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}|${e.amount}|${e.type}|${normalize(e.description)}`;
+        })
+      );
+
+      newTransactions = newTransactions.filter((t) => {
+        const d = t.date;
+        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}|${t.amount}|${t.type}|${normalize(t.description)}`;
+        return !existingKeys.has(key);
+      });
+    }
 
     // Import new transactions with auto-categorization
     const imported = [];
