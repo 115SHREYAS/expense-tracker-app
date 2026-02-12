@@ -7,6 +7,10 @@ export interface ParsedTransaction {
   hash: string;
 }
 
+export interface ParseOptions {
+  password?: string;
+}
+
 export interface BankParser {
-  parse(buffer: Buffer): ParsedTransaction[];
+  parse(buffer: Buffer, options?: ParseOptions): ParsedTransaction[];
 }

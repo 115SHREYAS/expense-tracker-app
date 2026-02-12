@@ -76,5 +76,6 @@ enum PaymentMode {
 
 enum TransactionSource {
   HDFC
+  SBI
   MANUAL
 }

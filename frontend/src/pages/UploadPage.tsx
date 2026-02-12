@@ -1,14 +1,33 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Lock } from "lucide-react";
+
+type Bank = "HDFC" | "SBI";
+
+const BANK_CONFIG: Record<Bank, { label: string; accept: string; description: string }> = {
+  HDFC: { label: "HDFC Bank", accept: ".xls,.xlsx", description: "Upload your HDFC bank account statement in XLS format" },
+  SBI: { label: "SBI Bank", accept: ".xlsx", description: "Upload your SBI bank account statement in XLSX format" },
+};
 
 export default function UploadPage() {
+  const [bank, setBank] = useState<Bank>("HDFC");
   const [file, setFile] = useState<File | null>(null);
+  const [password, setPassword] = useState("");
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const config = BANK_CONFIG[bank];
+
+  const handleBankChange = (newBank: Bank) => {
+    setBank(newBank);
+    setFile(null);
+    setPassword("");
+    setResult(null);
+    setError("");
+  };
 
   const handleUpload = async () => {
     if (!file) return;
@@ -18,9 +37,12 @@ export default function UploadPage() {
 
     const formData = new FormData();
     formData.append("file", file);
+    if (bank === "SBI" && password) {
+      formData.append("password", password);
+    }
 
     try {
-      const res = await api.post("/upload/hdfc", formData, {
+      const res = await api.post(`/upload/${bank.toLowerCase()}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setResult(res.data);
@@ -36,11 +58,31 @@ export default function UploadPage() {
       <h1 className="text-2xl font-bold text-gray-900">Upload Statement</h1>
 
       <div className="bg-white rounded-lg border border-gray-200 p-6">
+        {/* Bank Selector */}
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Select Bank</label>
+          <div className="flex gap-2">
+            {(Object.keys(BANK_CONFIG) as Bank[]).map((b) => (
+              <button
+                key={b}
+                onClick={() => handleBankChange(b)}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  bank === b
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {BANK_CONFIG[b].label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex items-center gap-3 mb-4">
           <FileSpreadsheet className="text-green-600" size={24} />
           <div>
-            <h2 className="font-semibold text-gray-900">HDFC Bank Statement</h2>
-            <p className="text-sm text-gray-500">Upload your HDFC bank account statement in XLS format</p>
+            <h2 className="font-semibold text-gray-900">{config.label} Statement</h2>
+            <p className="text-sm text-gray-500">{config.description}</p>
           </div>
         </div>
 
@@ -69,12 +111,12 @@ export default function UploadPage() {
             </div>
           ) : (
             <div>
-              <p className="text-sm text-gray-600 mb-1">Drag & drop your XLS file here, or</p>
+              <p className="text-sm text-gray-600 mb-1">Drag & drop your file here, or</p>
               <label className="text-sm text-blue-600 hover:underline cursor-pointer font-medium">
                 browse files
                 <input
                   type="file"
-                  accept=".xls,.xlsx"
+                  accept={config.accept}
                   className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
@@ -85,6 +127,26 @@ export default function UploadPage() {
             </div>
           )}
         </div>
+
+        {/* Password field for SBI */}
+        {bank === "SBI" && (
+          <div className="mt-4">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
+              <Lock size={14} />
+              File Password (if protected)
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Leave empty if file is not password-protected"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              SBI statements are typically protected with your account number or registered mobile number
+            </p>
+          </div>
+        )}
 
         <button
           onClick={handleUpload}

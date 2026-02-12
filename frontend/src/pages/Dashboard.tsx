@@ -37,7 +37,8 @@ export default function Dashboard() {
       startDate = new Date(now);
       startDate.setDate(now.getDate() - 7);
     } else if (period === "month") {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 30);
     } else {
       startDate = new Date(now.getFullYear(), 0, 1);
     }
@@ -77,7 +78,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-          {["week", "month", "year"].map((p) => (
+          {(["week", "month", "year"] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
