@@ -43,13 +43,13 @@ export default function Layout() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-500">{user?.email}</span>
+              <span className="hidden sm:inline text-sm text-gray-500">{user?.email}</span>
               <button
                 onClick={logout}
                 className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
               >
                 <LogOut size={16} />
-                Logout
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -75,6 +75,13 @@ export default function Layout() {
               </Link>
             );
           })}
+          <button
+            onClick={logout}
+            className="flex flex-col items-center gap-1 px-3 py-1 text-xs text-gray-500"
+          >
+            <LogOut size={20} />
+            Logout
+          </button>
         </div>
       </div>
 

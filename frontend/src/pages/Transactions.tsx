@@ -101,7 +101,7 @@ export default function Transactions() {
 
       {/* Filters */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <input
             type="date"
             value={filterStartDate}
@@ -158,7 +158,44 @@ export default function Transactions() {
           <p className="text-center text-gray-400 py-12">No transactions found</p>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile card layout */}
+            <div className="sm:hidden divide-y divide-gray-100">
+              {transactions.map((txn) => (
+                <div key={txn.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900 truncate">{txn.description}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{formatDate(txn.date)}</p>
+                    </div>
+                    <p className={`text-sm font-semibold whitespace-nowrap ${
+                      txn.type === "CREDIT" ? "text-green-600" : "text-red-600"
+                    }`}>
+                      {txn.type === "CREDIT" ? "+" : "-"}{formatCurrency(txn.amount)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${paymentModeColors[txn.paymentMode] || ""}`}>
+                      {txn.paymentMode}
+                    </span>
+                    <select
+                      value={txn.category?.id || ""}
+                      onChange={(e) => updateCategory(txn.id, e.target.value)}
+                      className={`text-xs px-2 py-1 rounded-md border ${
+                        txn.category ? "border-gray-200" : "border-amber-300 bg-amber-50"
+                      }`}
+                    >
+                      <option value="">Uncategorized</option>
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table layout */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
@@ -207,7 +244,7 @@ export default function Transactions() {
             {/* Pagination */}
             <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
               <p className="text-sm text-gray-500">
-                Showing {(page - 1) * 25 + 1}-{Math.min(page * 25, total)} of {total}
+                <span className="hidden sm:inline">Showing </span>{(page - 1) * 25 + 1}-{Math.min(page * 25, total)} of {total}
               </p>
               <div className="flex gap-1">
                 <button
@@ -325,7 +362,7 @@ function AddTransactionModal({
               placeholder="Coffee at Starbucks"
             />
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
               <select

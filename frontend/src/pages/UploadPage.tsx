@@ -45,7 +45,7 @@ export default function UploadPage() {
         </div>
 
         <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-colors ${
             file ? "border-blue-300 bg-blue-50" : "border-gray-300 hover:border-gray-400"
           }`}
           onDragOver={(e) => e.preventDefault()}

@@ -74,7 +74,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
           {["week", "month", "year"].map((p) => (
@@ -203,6 +203,7 @@ export default function Dashboard() {
           <div className="px-5 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">Category Details</h2>
           </div>
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
@@ -226,6 +227,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
