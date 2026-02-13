@@ -51,26 +51,47 @@ router.get("/by-category", authenticate, async (req: AuthRequest, res: Response)
       if (endDate) where.date.lte = new Date(endDate as string);
     }
 
-    const result: any[] = await (prisma.transaction.groupBy as any)({
+    // Non-split transactions: groupBy categoryId
+    const nonSplitResult: any[] = await (prisma.transaction.groupBy as any)({
       by: ["categoryId"],
-      where,
+      where: { ...where, isSplit: false },
       _sum: { amount: true },
       _count: true,
     });
 
+    // Split transactions: aggregate from TransactionSplit
+    const splitAllocations = await prisma.transactionSplit.findMany({
+      where: {
+        transaction: { ...where, isSplit: true },
+      },
+      select: { categoryId: true, amount: true },
+    });
+
+    // Merge into a single totals map
+    const totalsMap = new Map<string | null, { total: number; count: number }>();
+    for (const r of nonSplitResult) {
+      totalsMap.set(r.categoryId, { total: r._sum.amount || 0, count: r._count });
+    }
+    for (const s of splitAllocations) {
+      const existing = totalsMap.get(s.categoryId) || { total: 0, count: 0 };
+      existing.total += s.amount;
+      existing.count += 1;
+      totalsMap.set(s.categoryId, existing);
+    }
+
     // Fetch category names
-    const categoryIds = result.map((r: any) => r.categoryId).filter(Boolean) as string[];
+    const categoryIds = [...totalsMap.keys()].filter(Boolean) as string[];
     const categories = await prisma.category.findMany({
       where: { id: { in: categoryIds } },
     });
     const categoryMap = new Map<string, any>(categories.map((c: any) => [c.id, c]));
 
-    const breakdown = result.map((r: any) => ({
-      categoryId: r.categoryId,
-      categoryName: r.categoryId ? categoryMap.get(r.categoryId)?.name || "Unknown" : "Uncategorized",
-      categoryIcon: r.categoryId ? categoryMap.get(r.categoryId)?.icon || "tag" : "help-circle",
-      total: r._sum.amount || 0,
-      count: r._count,
+    const breakdown = [...totalsMap.entries()].map(([catId, data]) => ({
+      categoryId: catId,
+      categoryName: catId ? categoryMap.get(catId)?.name || "Unknown" : "Uncategorized",
+      categoryIcon: catId ? categoryMap.get(catId)?.icon || "tag" : "help-circle",
+      total: Math.round(data.total * 100) / 100,
+      count: data.count,
     }));
 
     breakdown.sort((a: any, b: any) => b.total - a.total);
@@ -144,11 +165,13 @@ router.get("/budget-status", authenticate, async (req: AuthRequest, res: Respons
 
     const categoryIds = budgets.map((b) => b.categoryId);
 
-    const spending: any[] = await (prisma.transaction.groupBy as any)({
+    // Non-split spending
+    const nonSplitSpending: any[] = await (prisma.transaction.groupBy as any)({
       by: ["categoryId"],
       where: {
         userId: req.userId!,
         type: "DEBIT",
+        isSplit: false,
         categoryId: { in: categoryIds },
         date: { gte: startDate, lte: endDate },
       },
@@ -156,8 +179,26 @@ router.get("/budget-status", authenticate, async (req: AuthRequest, res: Respons
     });
 
     const spendingMap = new Map<string, number>(
-      spending.map((s: any) => [s.categoryId, s._sum.amount || 0])
+      nonSplitSpending.map((s: any) => [s.categoryId, s._sum.amount || 0])
     );
+
+    // Split spending
+    const splitAllocations = await prisma.transactionSplit.findMany({
+      where: {
+        categoryId: { in: categoryIds },
+        transaction: {
+          userId: req.userId!,
+          type: "DEBIT",
+          isSplit: true,
+          date: { gte: startDate, lte: endDate },
+        },
+      },
+      select: { categoryId: true, amount: true },
+    });
+
+    for (const s of splitAllocations) {
+      spendingMap.set(s.categoryId, (spendingMap.get(s.categoryId) || 0) + s.amount);
+    }
 
     const result = budgets.map((b) => {
       const spent = spendingMap.get(b.categoryId) || 0;

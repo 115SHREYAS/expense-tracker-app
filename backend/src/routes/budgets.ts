@@ -26,12 +26,14 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
 
     const categoryIds = budgets.map((b) => b.categoryId);
 
-    const spending: any[] = categoryIds.length
+    // Non-split spending
+    const nonSplitSpending: any[] = categoryIds.length
       ? await (prisma.transaction.groupBy as any)({
           by: ["categoryId"],
           where: {
             userId: req.userId!,
             type: "DEBIT",
+            isSplit: false,
             categoryId: { in: categoryIds },
             date: { gte: startDate, lte: endDate },
           },
@@ -40,8 +42,28 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
       : [];
 
     const spendingMap = new Map<string, number>(
-      spending.map((s: any) => [s.categoryId, s._sum.amount || 0])
+      nonSplitSpending.map((s: any) => [s.categoryId, s._sum.amount || 0])
     );
+
+    // Split spending
+    if (categoryIds.length) {
+      const splitAllocations = await prisma.transactionSplit.findMany({
+        where: {
+          categoryId: { in: categoryIds },
+          transaction: {
+            userId: req.userId!,
+            type: "DEBIT",
+            isSplit: true,
+            date: { gte: startDate, lte: endDate },
+          },
+        },
+        select: { categoryId: true, amount: true },
+      });
+
+      for (const s of splitAllocations) {
+        spendingMap.set(s.categoryId, (spendingMap.get(s.categoryId) || 0) + s.amount);
+      }
+    }
 
     const result = budgets.map((b) => ({
       id: b.id,

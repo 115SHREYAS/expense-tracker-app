@@ -1,11 +1,19 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Fragment } from "react";
 import api from "../lib/api";
-import { ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, Scissors, ChevronDown, ChevronUp } from "lucide-react";
+import SplitModal from "../components/SplitModal";
 
 interface Category {
   id: string;
   name: string;
   icon: string;
+}
+
+interface TransactionSplit {
+  id: string;
+  categoryId: string;
+  amount: number;
+  category: Category;
 }
 
 interface Transaction {
@@ -16,6 +24,8 @@ interface Transaction {
   type: "DEBIT" | "CREDIT";
   paymentMode: string;
   category: Category | null;
+  isSplit: boolean;
+  splits: TransactionSplit[];
   source: string;
 }
 
@@ -27,6 +37,8 @@ export default function Transactions() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [splitTarget, setSplitTarget] = useState<Transaction | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   // Filters
   const [filterCategory, setFilterCategory] = useState("");
@@ -78,6 +90,15 @@ export default function Transactions() {
 
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+
+  const toggleExpand = (id: string) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const paymentModeColors: Record<string, string> = {
     UPI: "bg-purple-100 text-purple-700",
@@ -177,19 +198,49 @@ export default function Transactions() {
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${paymentModeColors[txn.paymentMode] || ""}`}>
                       {txn.paymentMode}
                     </span>
-                    <select
-                      value={txn.category?.id || ""}
-                      onChange={(e) => updateCategory(txn.id, e.target.value)}
-                      className={`text-xs px-2 py-1 rounded-md border ${
-                        txn.category ? "border-gray-200" : "border-amber-300 bg-amber-50"
-                      }`}
+                    {txn.isSplit ? (
+                      <button
+                        onClick={() => toggleExpand(txn.id)}
+                        className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-100 text-indigo-700 flex items-center gap-1"
+                      >
+                        Split ({txn.splits.length})
+                        {expandedRows.has(txn.id) ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                      </button>
+                    ) : (
+                      <select
+                        value={txn.category?.id || ""}
+                        onChange={(e) => updateCategory(txn.id, e.target.value)}
+                        className={`text-xs px-2 py-1 rounded-md border ${
+                          txn.category ? "border-gray-200" : "border-amber-300 bg-amber-50"
+                        }`}
+                      >
+                        <option value="">Uncategorized</option>
+                        {categories.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    )}
+                    <button
+                      onClick={() => setSplitTarget(txn)}
+                      className="p-1 text-gray-400 hover:text-indigo-600"
+                      title="Split transaction"
                     >
-                      <option value="">Uncategorized</option>
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
+                      <Scissors size={14} />
+                    </button>
                   </div>
+                  {txn.isSplit && expandedRows.has(txn.id) && (
+                    <div className="ml-4 space-y-1 pt-1">
+                      {txn.splits.map((s) => (
+                        <div key={s.id} className="flex items-center justify-between text-xs text-gray-600">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                            {s.category.name}
+                          </span>
+                          <span>{formatCurrency(s.amount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -204,38 +255,77 @@ export default function Transactions() {
                     <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Category</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Mode</th>
                     <th className="text-right text-xs font-medium text-gray-500 uppercase px-4 py-3">Amount</th>
+                    <th className="px-4 py-3 w-10"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {transactions.map((txn) => (
-                    <tr key={txn.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{formatDate(txn.date)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{txn.description}</td>
-                      <td className="px-4 py-3">
-                        <select
-                          value={txn.category?.id || ""}
-                          onChange={(e) => updateCategory(txn.id, e.target.value)}
-                          className={`text-xs px-2 py-1 rounded-md border ${
-                            txn.category ? "border-gray-200" : "border-amber-300 bg-amber-50"
-                          }`}
-                        >
-                          <option value="">Uncategorized</option>
-                          {categories.map((c) => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${paymentModeColors[txn.paymentMode] || ""}`}>
-                          {txn.paymentMode}
-                        </span>
-                      </td>
-                      <td className={`px-4 py-3 text-sm font-medium text-right whitespace-nowrap ${
-                        txn.type === "CREDIT" ? "text-green-600" : "text-red-600"
-                      }`}>
-                        {txn.type === "CREDIT" ? "+" : "-"}{formatCurrency(txn.amount)}
-                      </td>
-                    </tr>
+                    <Fragment key={txn.id}>
+                      <tr className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{formatDate(txn.date)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{txn.description}</td>
+                        <td className="px-4 py-3">
+                          {txn.isSplit ? (
+                            <button
+                              onClick={() => toggleExpand(txn.id)}
+                              className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-100 text-indigo-700 flex items-center gap-1"
+                            >
+                              Split ({txn.splits.length})
+                              {expandedRows.has(txn.id) ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            </button>
+                          ) : (
+                            <select
+                              value={txn.category?.id || ""}
+                              onChange={(e) => updateCategory(txn.id, e.target.value)}
+                              className={`text-xs px-2 py-1 rounded-md border ${
+                                txn.category ? "border-gray-200" : "border-amber-300 bg-amber-50"
+                              }`}
+                            >
+                              <option value="">Uncategorized</option>
+                              {categories.map((c) => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                              ))}
+                            </select>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${paymentModeColors[txn.paymentMode] || ""}`}>
+                            {txn.paymentMode}
+                          </span>
+                        </td>
+                        <td className={`px-4 py-3 text-sm font-medium text-right whitespace-nowrap ${
+                          txn.type === "CREDIT" ? "text-green-600" : "text-red-600"
+                        }`}>
+                          {txn.type === "CREDIT" ? "+" : "-"}{formatCurrency(txn.amount)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => setSplitTarget(txn)}
+                            className="p-1 text-gray-400 hover:text-indigo-600"
+                            title="Split transaction"
+                          >
+                            <Scissors size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                      {txn.isSplit && expandedRows.has(txn.id) && (
+                        <tr key={`${txn.id}-splits`} className="bg-indigo-50/50">
+                          <td colSpan={6} className="px-4 py-2">
+                            <div className="ml-8 space-y-1">
+                              {txn.splits.map((s) => (
+                                <div key={s.id} className="flex items-center justify-between text-xs text-gray-600">
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                                    {s.category.name}
+                                  </span>
+                                  <span className="font-medium">{formatCurrency(s.amount)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
@@ -273,6 +363,16 @@ export default function Transactions() {
           categories={categories}
           onClose={() => setShowAddModal(false)}
           onAdded={() => { setShowAddModal(false); fetchTransactions(); }}
+        />
+      )}
+
+      {/* Split Transaction Modal */}
+      {splitTarget && (
+        <SplitModal
+          transaction={splitTarget}
+          categories={categories}
+          onClose={() => setSplitTarget(null)}
+          onSaved={() => { setSplitTarget(null); fetchTransactions(); }}
         />
       )}
     </div>
