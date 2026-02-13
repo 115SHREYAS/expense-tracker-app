@@ -122,6 +122,76 @@ router.get("/over-time", authenticate, async (req: AuthRequest, res: Response) =
   }
 });
 
+// Budget status for dashboard
+router.get("/budget-status", authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const now = new Date();
+    const month = parseInt(req.query.month as string) || (now.getMonth() + 1);
+    const year = parseInt(req.query.year as string) || now.getFullYear();
+
+    const budgets = await prisma.budget.findMany({
+      where: { userId: req.userId!, month, year },
+      include: { category: { select: { id: true, name: true, icon: true } } },
+    });
+
+    if (budgets.length === 0) {
+      res.json([]);
+      return;
+    }
+
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const categoryIds = budgets.map((b) => b.categoryId);
+
+    const spending: any[] = await (prisma.transaction.groupBy as any)({
+      by: ["categoryId"],
+      where: {
+        userId: req.userId!,
+        type: "DEBIT",
+        categoryId: { in: categoryIds },
+        date: { gte: startDate, lte: endDate },
+      },
+      _sum: { amount: true },
+    });
+
+    const spendingMap = new Map<string, number>(
+      spending.map((s: any) => [s.categoryId, s._sum.amount || 0])
+    );
+
+    const result = budgets.map((b) => {
+      const spent = spendingMap.get(b.categoryId) || 0;
+      const percentage = b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0;
+      let status: "under" | "warning" | "over";
+      if (percentage >= 100) status = "over";
+      else if (percentage >= 80) status = "warning";
+      else status = "under";
+
+      return {
+        budgetId: b.id,
+        categoryId: b.category.id,
+        categoryName: b.category.name,
+        categoryIcon: b.category.icon,
+        budgetAmount: b.amount,
+        spent,
+        percentage,
+        status,
+      };
+    });
+
+    // Sort: over first, then warning, then under
+    result.sort((a, b) => {
+      const order = { over: 0, warning: 1, under: 2 };
+      return order[a.status] - order[b.status] || b.percentage - a.percentage;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error("Budget status error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Payment mode breakdown
 router.get("/by-payment-mode", authenticate, async (req: AuthRequest, res: Response) => {
   try {

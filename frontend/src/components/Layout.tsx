@@ -1,11 +1,12 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LayoutDashboard, Upload, List, LogOut } from "lucide-react";
+import { LayoutDashboard, Upload, List, LogOut, Target } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/transactions", label: "Transactions", icon: List },
   { path: "/upload", label: "Upload", icon: Upload },
+  { path: "/budgets", label: "Budgets", icon: Target },
 ];
 
 export default function Layout() {

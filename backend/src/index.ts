@@ -8,6 +8,7 @@ import transactionRoutes from "./routes/transactions";
 import categoryRoutes from "./routes/categories";
 import analyticsRoutes from "./routes/analytics";
 import uploadRoutes from "./routes/upload";
+import budgetRoutes from "./routes/budgets";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -81,6 +82,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/budgets", budgetRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ 

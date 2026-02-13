@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import api from "../lib/api";
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingDown, TrendingUp, ArrowRightLeft } from "lucide-react";
+import { TrendingDown, TrendingUp, ArrowRightLeft, AlertTriangle, Target } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const COLORS = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#6366f1", "#84cc16"];
 
@@ -23,10 +24,22 @@ interface TimeData {
   amount: number;
 }
 
+interface BudgetStatus {
+  budgetId: string;
+  categoryId: string;
+  categoryName: string;
+  categoryIcon: string;
+  budgetAmount: number;
+  spent: number;
+  percentage: number;
+  status: "under" | "warning" | "over";
+}
+
 export default function Dashboard() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [categoryData, setCategoryData] = useState<CategoryBreakdown[]>([]);
   const [timeData, setTimeData] = useState<TimeData[]>([]);
+  const [budgetStatuses, setBudgetStatuses] = useState<BudgetStatus[]>([]);
   const [period, setPeriod] = useState("month");
   const [loading, setLoading] = useState(true);
 
@@ -47,16 +60,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     const { startDate, endDate } = getDateRange();
+    const now = new Date();
     setLoading(true);
     Promise.all([
       api.get("/analytics/summary", { params: { startDate, endDate } }),
       api.get("/analytics/by-category", { params: { startDate, endDate } }),
       api.get("/analytics/over-time", { params: { startDate, endDate, groupBy: period === "year" ? "month" : "day" } }),
+      api.get("/analytics/budget-status", { params: { month: now.getMonth() + 1, year: now.getFullYear() } }),
     ])
-      .then(([summaryRes, categoryRes, timeRes]) => {
+      .then(([summaryRes, categoryRes, timeRes, budgetRes]) => {
         setSummary(summaryRes.data);
         setCategoryData(categoryRes.data);
         setTimeData(timeRes.data);
+        setBudgetStatuses(budgetRes.data);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -128,6 +144,67 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Budget Alert Banners */}
+      {budgetStatuses.filter((b) => b.status === "over" || b.status === "warning").length > 0 && (
+        <div className="space-y-2">
+          {budgetStatuses
+            .filter((b) => b.status === "over" || b.status === "warning")
+            .map((b) => (
+              <div
+                key={b.budgetId}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${
+                  b.status === "over"
+                    ? "bg-red-50 border-red-200 text-red-700"
+                    : "bg-amber-50 border-amber-200 text-amber-700"
+                }`}
+              >
+                <AlertTriangle size={18} />
+                <span className="text-sm font-medium">
+                  {b.categoryName} is {b.status === "over" ? "over budget" : "approaching budget"} — spent{" "}
+                  {formatCurrency(b.spent)} of {formatCurrency(b.budgetAmount)} ({b.percentage}%)
+                </span>
+              </div>
+            ))}
+        </div>
+      )}
+
+      {/* Budget Tracker */}
+      {budgetStatuses.length > 0 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Target size={18} className="text-gray-500" />
+              <h2 className="text-lg font-semibold text-gray-900">Budget Tracker</h2>
+            </div>
+            <Link to="/budgets" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              Manage Budgets
+            </Link>
+          </div>
+          <div className="space-y-4">
+            {budgetStatuses.map((b) => {
+              const barColor =
+                b.status === "over" ? "bg-red-500" : b.status === "warning" ? "bg-amber-500" : "bg-green-500";
+              return (
+                <div key={b.budgetId}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-gray-700">{b.categoryName}</span>
+                    <span className="text-xs text-gray-500">
+                      {formatCurrency(b.spent)} / {formatCurrency(b.budgetAmount)}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all ${barColor}`}
+                      style={{ width: `${Math.min(b.percentage, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

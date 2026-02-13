@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import UploadPage from "./pages/UploadPage";
+import Budgets from "./pages/Budgets";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/upload" element={<UploadPage />} />
+            <Route path="/budgets" element={<Budgets />} />
           </Route>
         </Routes>
       </AuthProvider>

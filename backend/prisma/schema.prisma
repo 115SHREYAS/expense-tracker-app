@@ -13,6 +13,7 @@ model User {
   passwordHash String        @map("password_hash")
   createdAt    DateTime      @default(now()) @map("created_at")
   transactions Transaction[]
+  budgets      Budget[]
 
   @@map("users")
 }
@@ -24,6 +25,7 @@ model Category {
   isCustom           Boolean             @default(false) @map("is_custom")
   transactions       Transaction[]
   categorizationRules CategorizationRule[]
+  budgets            Budget[]
 
   @@map("categories")
 }
@@ -72,6 +74,23 @@ enum PaymentMode {
   CARD
   CASH
   BANK
+}
+
+model Budget {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  categoryId String   @map("category_id")
+  amount     Float
+  month      Int
+  year       Int
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId, month, year])
+  @@index([userId, month, year])
+  @@map("budgets")
 }
 
 enum TransactionSource {
