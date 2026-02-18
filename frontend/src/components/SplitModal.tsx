@@ -118,22 +118,22 @@ export default function SplitModal({
   const canSave = remaining === 0 && entries.length >= 2 && entries.every((e) => e.categoryId && parseFloat(e.amount) > 0);
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Split Transaction</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Split Transaction</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <X size={20} />
           </button>
         </div>
 
         {/* Transaction info */}
-        <div className="bg-gray-50 rounded-md p-3 mb-4">
-          <p className="text-sm text-gray-600 truncate">{transaction.description}</p>
-          <p className="text-lg font-semibold text-gray-900 mt-1">{formatCurrency(totalAmount)}</p>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-md p-3 mb-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{transaction.description}</p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{formatCurrency(totalAmount)}</p>
         </div>
 
-        {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-md mb-4">{error}</div>}
+        {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm p-3 rounded-md mb-4">{error}</div>}
 
         {/* Split rows */}
         <div className="space-y-3 mb-4">
@@ -142,7 +142,7 @@ export default function SplitModal({
               <select
                 value={entry.categoryId}
                 onChange={(e) => updateEntry(index, "categoryId", e.target.value)}
-                className="flex-1 px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                className="flex-1 px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
               >
                 <option value="">Select category</option>
                 {categories.map((c) => (
@@ -162,7 +162,7 @@ export default function SplitModal({
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="w-28 px-2 py-1.5 border border-gray-300 rounded-md text-sm text-right"
+                className="w-28 px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm text-right"
               />
               <button
                 onClick={() => removeRow(index)}
@@ -178,7 +178,7 @@ export default function SplitModal({
         {/* Add row */}
         <button
           onClick={addRow}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-4"
+          className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4"
         >
           <Plus size={14} />
           Add Category
@@ -187,8 +187,8 @@ export default function SplitModal({
         {/* Remaining indicator */}
         <div className={`text-sm font-medium mb-4 px-3 py-2 rounded-md ${
           remaining === 0
-            ? "bg-green-50 text-green-700"
-            : "bg-amber-50 text-amber-700"
+            ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+            : "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
         }`}>
           Remaining: {formatCurrency(remaining)}
         </div>
@@ -199,7 +199,7 @@ export default function SplitModal({
             <button
               onClick={handleRemoveSplit}
               disabled={loading}
-              className="px-4 py-2 border border-red-300 text-red-600 rounded-md text-sm font-medium hover:bg-red-50 disabled:opacity-50"
+              className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-md text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50"
             >
               Remove Split
             </button>

@@ -101,16 +101,16 @@ export default function Transactions() {
   };
 
   const paymentModeColors: Record<string, string> = {
-    UPI: "bg-purple-100 text-purple-700",
-    CARD: "bg-blue-100 text-blue-700",
-    CASH: "bg-green-100 text-green-700",
-    BANK: "bg-amber-100 text-amber-700",
+    UPI: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+    CARD: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+    CASH: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+    BANK: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Transactions</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Transactions</h1>
         <button
           onClick={() => setShowAddModal(true)}
           className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
@@ -121,25 +121,25 @@ export default function Transactions() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <input
             type="date"
             value={filterStartDate}
             onChange={(e) => { setFilterStartDate(e.target.value); setPage(1); }}
-            className="px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+            className="px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
             placeholder="Start date"
           />
           <input
             type="date"
             value={filterEndDate}
             onChange={(e) => { setFilterEndDate(e.target.value); setPage(1); }}
-            className="px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+            className="px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
           />
           <select
             value={filterCategory}
             onChange={(e) => { setFilterCategory(e.target.value); setPage(1); }}
-            className="px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+            className="px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
           >
             <option value="">All Categories</option>
             {categories.map((c) => (
@@ -149,7 +149,7 @@ export default function Transactions() {
           <select
             value={filterPaymentMode}
             onChange={(e) => { setFilterPaymentMode(e.target.value); setPage(1); }}
-            className="px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+            className="px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
           >
             <option value="">All Modes</option>
             <option value="UPI">UPI</option>
@@ -160,7 +160,7 @@ export default function Transactions() {
           <select
             value={filterType}
             onChange={(e) => { setFilterType(e.target.value); setPage(1); }}
-            className="px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+            className="px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
           >
             <option value="">All Types</option>
             <option value="DEBIT">Debit</option>
@@ -170,23 +170,23 @@ export default function Transactions() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : transactions.length === 0 ? (
-          <p className="text-center text-gray-400 py-12">No transactions found</p>
+          <p className="text-center text-gray-400 dark:text-gray-500 py-12">No transactions found</p>
         ) : (
           <>
             {/* Mobile card layout */}
-            <div className="sm:hidden divide-y divide-gray-100">
+            <div className="sm:hidden divide-y divide-gray-100 dark:divide-gray-700">
               {transactions.map((txn) => (
                 <div key={txn.id} className="p-4 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">{txn.description}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{formatDate(txn.date)}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{txn.description}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{formatDate(txn.date)}</p>
                     </div>
                     <p className={`text-sm font-semibold whitespace-nowrap ${
                       txn.type === "CREDIT" ? "text-green-600" : "text-red-600"
@@ -201,7 +201,7 @@ export default function Transactions() {
                     {txn.isSplit ? (
                       <button
                         onClick={() => toggleExpand(txn.id)}
-                        className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-100 text-indigo-700 flex items-center gap-1"
+                        className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center gap-1"
                       >
                         Split ({txn.splits.length})
                         {expandedRows.has(txn.id) ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -211,7 +211,7 @@ export default function Transactions() {
                         value={txn.category?.id || ""}
                         onChange={(e) => updateCategory(txn.id, e.target.value)}
                         className={`text-xs px-2 py-1 rounded-md border ${
-                          txn.category ? "border-gray-200" : "border-amber-300 bg-amber-50"
+                          txn.category ? "border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" : "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
                         }`}
                       >
                         <option value="">Uncategorized</option>
@@ -222,7 +222,7 @@ export default function Transactions() {
                     )}
                     <button
                       onClick={() => setSplitTarget(txn)}
-                      className="p-1 text-gray-400 hover:text-indigo-600"
+                      className="p-1 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
                       title="Split transaction"
                     >
                       <Scissors size={14} />
@@ -231,7 +231,7 @@ export default function Transactions() {
                   {txn.isSplit && expandedRows.has(txn.id) && (
                     <div className="ml-4 space-y-1 pt-1">
                       {txn.splits.map((s) => (
-                        <div key={s.id} className="flex items-center justify-between text-xs text-gray-600">
+                        <div key={s.id} className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
                           <span className="flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
                             {s.category.name}
@@ -248,27 +248,27 @@ export default function Transactions() {
             {/* Desktop table layout */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-700/50">
                   <tr>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Date</th>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Description</th>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Category</th>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Mode</th>
-                    <th className="text-right text-xs font-medium text-gray-500 uppercase px-4 py-3">Amount</th>
+                    <th className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-4 py-3">Date</th>
+                    <th className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-4 py-3">Description</th>
+                    <th className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-4 py-3">Category</th>
+                    <th className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-4 py-3">Mode</th>
+                    <th className="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-4 py-3">Amount</th>
                     <th className="px-4 py-3 w-10"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {transactions.map((txn) => (
                     <Fragment key={txn.id}>
-                      <tr className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{formatDate(txn.date)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{txn.description}</td>
+                      <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">{formatDate(txn.date)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">{txn.description}</td>
                         <td className="px-4 py-3">
                           {txn.isSplit ? (
                             <button
                               onClick={() => toggleExpand(txn.id)}
-                              className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-100 text-indigo-700 flex items-center gap-1"
+                              className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center gap-1"
                             >
                               Split ({txn.splits.length})
                               {expandedRows.has(txn.id) ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -278,7 +278,7 @@ export default function Transactions() {
                               value={txn.category?.id || ""}
                               onChange={(e) => updateCategory(txn.id, e.target.value)}
                               className={`text-xs px-2 py-1 rounded-md border ${
-                                txn.category ? "border-gray-200" : "border-amber-300 bg-amber-50"
+                                txn.category ? "border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" : "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
                               }`}
                             >
                               <option value="">Uncategorized</option>
@@ -301,7 +301,7 @@ export default function Transactions() {
                         <td className="px-4 py-3">
                           <button
                             onClick={() => setSplitTarget(txn)}
-                            className="p-1 text-gray-400 hover:text-indigo-600"
+                            className="p-1 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
                             title="Split transaction"
                           >
                             <Scissors size={14} />
@@ -309,11 +309,11 @@ export default function Transactions() {
                         </td>
                       </tr>
                       {txn.isSplit && expandedRows.has(txn.id) && (
-                        <tr key={`${txn.id}-splits`} className="bg-indigo-50/50">
+                        <tr key={`${txn.id}-splits`} className="bg-indigo-50/50 dark:bg-indigo-900/20">
                           <td colSpan={6} className="px-4 py-2">
                             <div className="ml-8 space-y-1">
                               {txn.splits.map((s) => (
-                                <div key={s.id} className="flex items-center justify-between text-xs text-gray-600">
+                                <div key={s.id} className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
                                   <span className="flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
                                     {s.category.name}
@@ -332,22 +332,22 @@ export default function Transactions() {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-              <p className="text-sm text-gray-500">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 <span className="hidden sm:inline">Showing </span>{(page - 1) * 25 + 1}-{Math.min(page * 25, total)} of {total}
               </p>
               <div className="flex gap-1">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-1.5 rounded-md border border-gray-300 disabled:opacity-30 hover:bg-gray-50"
+                  className="p-1.5 rounded-md border border-gray-300 dark:border-gray-600 dark:text-gray-300 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-1.5 rounded-md border border-gray-300 disabled:opacity-30 hover:bg-gray-50"
+                  className="p-1.5 rounded-md border border-gray-300 dark:border-gray-600 dark:text-gray-300 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <ChevronRight size={16} />
                 </button>
@@ -414,31 +414,31 @@ function AddTransactionModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Add Transaction</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Add Transaction</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <X size={20} />
           </button>
         </div>
 
-        {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-md mb-4">{error}</div>}
+        {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm p-3 rounded-md mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
               <input
                 type="date"
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 required
-                className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Amount</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
               <input
                 type="number"
                 value={form.amount}
@@ -446,40 +446,40 @@ function AddTransactionModal({
                 required
                 min="0"
                 step="0.01"
-                className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
                 placeholder="0.00"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <input
               type="text"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               required
-              className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+              className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
               placeholder="Coffee at Starbucks"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
               >
                 <option value="DEBIT">Debit</option>
                 <option value="CREDIT">Credit</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Mode</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Mode</label>
               <select
                 value={form.paymentMode}
                 onChange={(e) => setForm({ ...form, paymentMode: e.target.value })}
-                className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
               >
                 <option value="CASH">Cash</option>
                 <option value="UPI">UPI</option>
@@ -488,11 +488,11 @@ function AddTransactionModal({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
               <select
                 value={form.categoryId}
                 onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
               >
                 <option value="">Auto</option>
                 {categories.map((c) => (
