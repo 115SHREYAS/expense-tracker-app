@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { TrendingDown, TrendingUp, ArrowRightLeft, AlertTriangle, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import EmptyStateIllustration from "../components/illustrations/EmptyStateIllustration";
 
 const COLORS = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#6366f1", "#84cc16"];
 
@@ -244,7 +245,9 @@ export default function Dashboard() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 dark:text-gray-500 text-center py-20">No spending data for this period</p>
+            <div className="py-10">
+              <EmptyStateIllustration message="No spending data for this period" />
+            </div>
           )}
         </div>
 
@@ -282,7 +285,9 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <p className="text-gray-400 dark:text-gray-500 text-center py-20">No category data for this period</p>
+            <div className="py-10">
+              <EmptyStateIllustration message="No category data for this period" />
+            </div>
           )}
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Lock } from "lucide-react";
+import { FileSpreadsheet, CheckCircle, AlertCircle, Lock } from "lucide-react";
+import UploadIllustration from "../components/illustrations/UploadIllustration";
 
 type Bank = "HDFC" | "SBI";
 
@@ -97,7 +98,9 @@ export default function UploadPage() {
             if (f) setFile(f);
           }}
         >
-          <Upload className="mx-auto text-gray-400 dark:text-gray-500 mb-3" size={32} />
+          <div className="w-32 mx-auto mb-4">
+            <UploadIllustration isDragging={!file} />
+          </div>
           {file ? (
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{file.name}</p>

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, Fragment } from "react";
 import api from "../lib/api";
 import { ChevronLeft, ChevronRight, Plus, X, Scissors, ChevronDown, ChevronUp } from "lucide-react";
 import SplitModal from "../components/SplitModal";
+import EmptyStateIllustration from "../components/illustrations/EmptyStateIllustration";
 
 interface Category {
   id: string;
@@ -176,7 +177,9 @@ export default function Transactions() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : transactions.length === 0 ? (
-          <p className="text-center text-gray-400 dark:text-gray-500 py-12">No transactions found</p>
+          <div className="py-16">
+            <EmptyStateIllustration message="No transactions found" />
+          </div>
         ) : (
           <>
             {/* Mobile card layout */}

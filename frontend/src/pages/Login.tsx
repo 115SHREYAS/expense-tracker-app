@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { Sun, Moon, Monitor } from "lucide-react";
+import LoginIllustration from "../components/illustrations/LoginIllustration";
 
 export default function Login() {
   const [isRegister, setIsRegister] = useState(false);
@@ -51,6 +52,9 @@ export default function Login() {
         </button>
       </div>
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+        <div className="w-48 mx-auto mb-6">
+          <LoginIllustration />
+        </div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
           ExpenseTracker
         </h1>

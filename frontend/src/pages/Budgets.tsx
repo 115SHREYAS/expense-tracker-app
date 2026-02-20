@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../lib/api";
 import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, X, Check } from "lucide-react";
+import TargetIllustration from "../components/illustrations/TargetIllustration";
 
 interface BudgetItem {
   id: string;
@@ -203,9 +204,12 @@ export default function Budgets() {
 
       {/* Budget List */}
       {budgets.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-400 dark:text-gray-500 text-lg">No budgets set for this month.</p>
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Add one to start tracking your spending!</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center flex flex-col items-center">
+          <div className="w-48 mb-6">
+            <TargetIllustration />
+          </div>
+          <p className="text-gray-900 dark:text-gray-100 font-medium text-lg">No budgets set for this month.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Add one to start tracking your spending!</p>
         </div>
       ) : (
         <div className="space-y-3">
