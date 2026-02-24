@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Fragment } from "react";
 import api from "../lib/api";
-import { ChevronLeft, ChevronRight, Plus, X, Scissors, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, Scissors, ChevronDown, ChevronUp, Search, FilterX } from "lucide-react";
 import SplitModal from "../components/SplitModal";
 import EmptyStateIllustration from "../components/illustrations/EmptyStateIllustration";
 
@@ -42,16 +42,30 @@ export default function Transactions() {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   // Filters
+  const [filterSearch, setFilterSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterPaymentMode, setFilterPaymentMode] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
 
+  const hasActiveFilters = !!(filterSearch || filterCategory || filterPaymentMode || filterType || filterStartDate || filterEndDate);
+
+  const clearFilters = () => {
+    setFilterSearch("");
+    setFilterCategory("");
+    setFilterPaymentMode("");
+    setFilterType("");
+    setFilterStartDate("");
+    setFilterEndDate("");
+    setPage(1);
+  };
+
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
     try {
       const params: any = { page, limit: 25 };
+      if (filterSearch) params.search = filterSearch;
       if (filterCategory) params.category = filterCategory;
       if (filterPaymentMode) params.paymentMode = filterPaymentMode;
       if (filterType) params.type = filterType;
@@ -67,7 +81,7 @@ export default function Transactions() {
     } finally {
       setLoading(false);
     }
-  }, [page, filterCategory, filterPaymentMode, filterType, filterStartDate, filterEndDate]);
+  }, [page, filterSearch, filterCategory, filterPaymentMode, filterType, filterStartDate, filterEndDate]);
 
   useEffect(() => {
     api.get("/categories").then((res) => setCategories(res.data)).catch(console.error);
@@ -123,7 +137,18 @@ export default function Transactions() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="space-y-3">
+          <div className="relative">
+            <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={filterSearch}
+              onChange={(e) => { setFilterSearch(e.target.value); setPage(1); }}
+              placeholder="Search by description…"
+              className="w-full pl-8 pr-3 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm"
+            />
+          </div>
+        <div className="flex flex-wrap items-center gap-3">
           <input
             type="date"
             value={filterStartDate}
@@ -167,6 +192,16 @@ export default function Transactions() {
             <option value="DEBIT">Debit</option>
             <option value="CREDIT">Credit</option>
           </select>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 rounded-md transition-colors ml-auto"
+            >
+              <FilterX size={14} />
+              Clear
+            </button>
+          )}
+        </div>
         </div>
       </div>
 

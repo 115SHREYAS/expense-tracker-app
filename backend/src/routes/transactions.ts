@@ -14,6 +14,7 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
     const category = req.query.category as string | undefined;
     const paymentMode = req.query.paymentMode as string | undefined;
     const type = req.query.type as string | undefined;
+    const search = req.query.search as string | undefined;
     const page = parseInt((req.query.page as string) || "1", 10);
     const limit = parseInt((req.query.limit as string) || "50", 10);
 
@@ -26,6 +27,7 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
     if (category) where.categoryId = category;
     if (paymentMode) where.paymentMode = paymentMode;
     if (type) where.type = type;
+    if (search) where.description = { contains: search, mode: "insensitive" };
 
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({

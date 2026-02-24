@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../lib/api";
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingDown, TrendingUp, ArrowRightLeft, AlertTriangle, Target } from "lucide-react";
+import { TrendingDown, TrendingUp, ArrowRightLeft, AlertTriangle, Target, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import EmptyStateIllustration from "../components/illustrations/EmptyStateIllustration";
@@ -121,7 +121,7 @@ export default function Dashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg">
@@ -155,6 +155,25 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        {(() => {
+          const net = (summary?.totalIncome || 0) - (summary?.totalExpense || 0);
+          const isPositive = net >= 0;
+          return (
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${isPositive ? "bg-teal-50 dark:bg-teal-900/30" : "bg-orange-50 dark:bg-orange-900/30"}`}>
+                  <Wallet className={isPositive ? "text-teal-600" : "text-orange-600"} size={20} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Net Balance</p>
+                  <p className={`text-xl font-bold ${isPositive ? "text-teal-600 dark:text-teal-400" : "text-orange-600 dark:text-orange-400"}`}>
+                    {isPositive ? "+" : ""}{formatCurrency(net)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Budget Alert Banners */}
