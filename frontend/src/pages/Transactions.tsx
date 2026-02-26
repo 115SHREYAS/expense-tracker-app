@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Fragment } from "react";
 import api from "../lib/api";
-import { ChevronLeft, ChevronRight, Plus, X, Scissors, ChevronDown, ChevronUp, Search, FilterX } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, Scissors, ChevronDown, ChevronUp, Search, FilterX, Download } from "lucide-react";
 import SplitModal from "../components/SplitModal";
 import EmptyStateIllustration from "../components/illustrations/EmptyStateIllustration";
 
@@ -50,6 +50,28 @@ export default function Transactions() {
   const [filterEndDate, setFilterEndDate] = useState("");
 
   const hasActiveFilters = !!(filterSearch || filterCategory || filterPaymentMode || filterType || filterStartDate || filterEndDate);
+
+  const exportCSV = async () => {
+    try {
+      const params: any = {};
+      if (filterSearch) params.search = filterSearch;
+      if (filterCategory) params.category = filterCategory;
+      if (filterPaymentMode) params.paymentMode = filterPaymentMode;
+      if (filterType) params.type = filterType;
+      if (filterStartDate) params.startDate = filterStartDate;
+      if (filterEndDate) params.endDate = filterEndDate;
+
+      const res = await api.get("/transactions/export", { params, responseType: "blob" });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `transactions_${new Date().toISOString().split("T")[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+    }
+  };
 
   const clearFilters = () => {
     setFilterSearch("");
@@ -126,13 +148,23 @@ export default function Transactions() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Transactions</h1>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={16} />
-          Add Manual
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="Export current view as CSV"
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={16} />
+            Add Manual
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

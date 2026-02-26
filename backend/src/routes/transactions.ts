@@ -50,6 +50,67 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Export transactions as CSV
+router.get("/export", authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const startDate = req.query.startDate as string | undefined;
+    const endDate = req.query.endDate as string | undefined;
+    const category = req.query.category as string | undefined;
+    const paymentMode = req.query.paymentMode as string | undefined;
+    const type = req.query.type as string | undefined;
+    const search = req.query.search as string | undefined;
+
+    const where: any = { userId: req.userId! };
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate);
+      if (endDate) where.date.lte = new Date(endDate);
+    }
+    if (category) where.categoryId = category;
+    if (paymentMode) where.paymentMode = paymentMode;
+    if (type) where.type = type;
+    if (search) where.description = { contains: search, mode: "insensitive" };
+
+    const transactions = await prisma.transaction.findMany({
+      where,
+      include: {
+        category: true,
+        splits: { include: { category: true }, orderBy: { amount: "desc" } },
+      },
+      orderBy: { date: "desc" },
+    });
+
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+
+    const header = ["Date", "Description", "Amount", "Type", "Payment Mode", "Category", "Source"].join(",");
+    const rows = transactions.map((t) => {
+      const date = t.date.toISOString().split("T")[0];
+      const categoryLabel = t.isSplit
+        ? t.splits.map((s) => s.category.name).join("; ")
+        : (t.category?.name ?? "Uncategorized");
+      return [
+        date,
+        escape(t.description),
+        t.amount.toFixed(2),
+        t.type,
+        t.paymentMode,
+        escape(categoryLabel),
+        t.source,
+      ].join(",");
+    });
+
+    const csv = [header, ...rows].join("\n");
+    const filename = `transactions_${new Date().toISOString().split("T")[0]}.csv`;
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(csv);
+  } catch (error) {
+    console.error("Export transactions error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Add manual transaction
 router.post("/", authenticate, async (req: AuthRequest, res: Response) => {
   try {
