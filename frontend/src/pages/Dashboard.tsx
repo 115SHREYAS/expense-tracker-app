@@ -95,8 +95,9 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-100 border-t-blue-600" />
+        <p className="text-sm text-gray-400 dark:text-gray-500">Loading dashboard…</p>
       </div>
     );
   }
@@ -105,13 +106,15 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
-        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
           {(["week", "month", "year"] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                period === p ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className={`px-4 py-1.5 text-sm rounded-lg font-medium transition-all ${
+                period === p
+                  ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm font-semibold"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               }`}
             >
               {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -122,36 +125,36 @@ export default function Dashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 border-l-4 border-l-red-400 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg">
-              <TrendingDown className="text-red-600" size={20} />
+            <div className="p-2.5 bg-red-50 dark:bg-red-900/30 rounded-xl">
+              <TrendingDown className="text-red-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary?.totalExpense || 0)}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Expenses</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">{formatCurrency(summary?.totalExpense || 0)}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 border-l-4 border-l-green-400 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <TrendingUp className="text-green-600" size={20} />
+            <div className="p-2.5 bg-green-50 dark:bg-green-900/30 rounded-xl">
+              <TrendingUp className="text-green-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary?.totalIncome || 0)}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Income</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">{formatCurrency(summary?.totalIncome || 0)}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 border-l-4 border-l-blue-400 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-              <ArrowRightLeft className="text-blue-600" size={20} />
+            <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+              <ArrowRightLeft className="text-blue-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Transactions</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{summary?.transactionCount || 0}</p>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Transactions</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">{summary?.transactionCount || 0}</p>
             </div>
           </div>
         </div>
@@ -159,14 +162,14 @@ export default function Dashboard() {
           const net = (summary?.totalIncome || 0) - (summary?.totalExpense || 0);
           const isPositive = net >= 0;
           return (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+            <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-shadow border-l-4 ${isPositive ? "border-l-teal-400" : "border-l-orange-400"}`}>
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${isPositive ? "bg-teal-50 dark:bg-teal-900/30" : "bg-orange-50 dark:bg-orange-900/30"}`}>
-                  <Wallet className={isPositive ? "text-teal-600" : "text-orange-600"} size={20} />
+                <div className={`p-2.5 rounded-xl ${isPositive ? "bg-teal-50 dark:bg-teal-900/30" : "bg-orange-50 dark:bg-orange-900/30"}`}>
+                  <Wallet className={isPositive ? "text-teal-500" : "text-orange-500"} size={20} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Net Balance</p>
-                  <p className={`text-xl font-bold ${isPositive ? "text-teal-600 dark:text-teal-400" : "text-orange-600 dark:text-orange-400"}`}>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Net Balance</p>
+                  <p className={`text-xl font-bold mt-0.5 ${isPositive ? "text-teal-600 dark:text-teal-400" : "text-orange-600 dark:text-orange-400"}`}>
                     {isPositive ? "+" : ""}{formatCurrency(net)}
                   </p>
                 </div>
@@ -184,7 +187,7 @@ export default function Dashboard() {
             .map((b) => (
               <div
                 key={b.budgetId}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${
                   b.status === "over"
                     ? "bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400"
                     : "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400"
@@ -202,14 +205,14 @@ export default function Dashboard() {
 
       {/* Budget Tracker */}
       {budgetStatuses.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <Target size={18} className="text-gray-500 dark:text-gray-400" />
+              <Target size={18} className="text-blue-500" />
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Budget Tracker</h2>
             </div>
-            <Link to="/budgets" className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
-              Manage Budgets
+            <Link to="/budgets" className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium hover:underline">
+              Manage →
             </Link>
           </div>
           <div className="space-y-4">
@@ -218,15 +221,15 @@ export default function Dashboard() {
                 b.status === "over" ? "bg-red-500" : b.status === "warning" ? "bg-amber-500" : "bg-green-500";
               return (
                 <div key={b.budgetId}>
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center justify-between mb-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{b.categoryName}</span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatCurrency(b.spent)} / {formatCurrency(b.budgetAmount)}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
                     <div
-                      className={`h-2 rounded-full transition-all ${barColor}`}
+                      className={`h-2.5 rounded-full transition-all ${barColor}`}
                       style={{ width: `${Math.min(b.percentage, 100)}%` }}
                     />
                   </div>
@@ -240,8 +243,8 @@ export default function Dashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Spending Over Time */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Spending Over Time</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">Spending Over Time</h2>
           {timeData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={timeData}>
@@ -271,8 +274,8 @@ export default function Dashboard() {
         </div>
 
         {/* Category Breakdown */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">By Category</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">By Category</h2>
           {categoryData.length > 0 ? (
             <div className="flex flex-col items-center">
               <ResponsiveContainer width="100%" height={250}>
@@ -313,22 +316,22 @@ export default function Dashboard() {
 
       {/* Category Table */}
       {categoryData.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
           <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Category Details</h2>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Category Details</h2>
           </div>
           <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700/50">
               <tr>
-                <th className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-5 py-3">Category</th>
-                <th className="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-5 py-3">Transactions</th>
-                <th className="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase px-5 py-3">Amount</th>
+                <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide px-5 py-3">Category</th>
+                <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide px-5 py-3">Transactions</th>
+                <th className="text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide px-5 py-3">Amount</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {categoryData.map((cat, i) => (
-                <tr key={cat.categoryName} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr key={cat.categoryName} className="hover:bg-blue-50/40 dark:hover:bg-gray-700/50 transition-colors">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
@@ -336,7 +339,7 @@ export default function Dashboard() {
                     </div>
                   </td>
                   <td className="px-5 py-3 text-right text-sm text-gray-500 dark:text-gray-400">{cat.count}</td>
-                  <td className="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(cat.total)}</td>
+                  <td className="px-5 py-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">{formatCurrency(cat.total)}</td>
                 </tr>
               ))}
             </tbody>

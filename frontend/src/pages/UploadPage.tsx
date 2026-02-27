@@ -58,7 +58,7 @@ export default function UploadPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Upload Statement</h1>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
         {/* Bank Selector */}
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Bank</label>
@@ -67,9 +67,9 @@ export default function UploadPage() {
               <button
                 key={b}
                 onClick={() => handleBankChange(b)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   bank === b
-                    ? "bg-blue-600 text-white"
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
                     : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
               >
@@ -80,7 +80,9 @@ export default function UploadPage() {
         </div>
 
         <div className="flex items-center gap-3 mb-4">
-          <FileSpreadsheet className="text-green-600" size={24} />
+          <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-xl">
+            <FileSpreadsheet className="text-green-600" size={22} />
+          </div>
           <div>
             <h2 className="font-semibold text-gray-900 dark:text-gray-100">{config.label} Statement</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">{config.description}</p>
@@ -88,8 +90,10 @@ export default function UploadPage() {
         </div>
 
         <div
-          className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-colors ${
-            file ? "border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+          className={`border-2 border-dashed rounded-xl p-6 sm:p-10 text-center transition-all ${
+            file
+              ? "border-blue-400 bg-blue-50/60 dark:border-blue-600 dark:bg-blue-900/20"
+              : "border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-700/30"
           }`}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
@@ -103,19 +107,19 @@ export default function UploadPage() {
           </div>
           {file ? (
             <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{file.name}</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{file.name}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{(file.size / 1024).toFixed(1)} KB</p>
               <button
                 onClick={() => { setFile(null); setResult(null); setError(""); }}
-                className="text-xs text-red-600 dark:text-red-400 hover:underline mt-2"
+                className="text-xs text-red-600 dark:text-red-400 hover:underline mt-2 font-medium"
               >
-                Remove
+                Remove file
               </button>
             </div>
           ) : (
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Drag & drop your file here, or</p>
-              <label className="text-sm text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium">
+              <label className="text-sm text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-semibold">
                 browse files
                 <input
                   type="file"
@@ -127,6 +131,7 @@ export default function UploadPage() {
                   }}
                 />
               </label>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Accepted: {config.accept}</p>
             </div>
           )}
         </div>
@@ -143,7 +148,7 @@ export default function UploadPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Leave empty if file is not password-protected"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               SBI statements are typically protected with your account number or registered mobile number
@@ -154,44 +159,44 @@ export default function UploadPage() {
         <button
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="w-full mt-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
         >
-          {uploading ? "Processing..." : "Upload & Import"}
+          {uploading ? "Processing…" : "Upload & Import"}
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center gap-3">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3">
           <AlertCircle className="text-red-600 dark:text-red-400 shrink-0" size={20} />
           <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
       {result && (
-        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <CheckCircle className="text-green-600" size={20} />
-            <h3 className="font-semibold text-green-900 dark:text-green-300">Import Successful</h3>
+        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <CheckCircle className="text-green-600" size={22} />
+            <h3 className="font-semibold text-green-900 dark:text-green-300 text-lg">Import Successful!</h3>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
+          <div className="grid grid-cols-3 gap-4 text-center mb-4">
+            <div className="bg-white/60 dark:bg-gray-800/40 rounded-xl p-3">
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{result.total}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Found</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Found</p>
             </div>
-            <div>
+            <div className="bg-white/60 dark:bg-gray-800/40 rounded-xl p-3">
               <p className="text-2xl font-bold text-green-600">{result.imported}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Imported</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Imported</p>
             </div>
-            <div>
+            <div className="bg-white/60 dark:bg-gray-800/40 rounded-xl p-3">
               <p className="text-2xl font-bold text-amber-600">{result.duplicates}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Duplicates Skipped</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Duplicates Skipped</p>
             </div>
           </div>
           <button
             onClick={() => navigate("/transactions")}
-            className="w-full mt-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
+            className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm hover:shadow-md"
           >
-            Review Transactions
+            Review Transactions →
           </button>
         </div>
       )}

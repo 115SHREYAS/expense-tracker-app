@@ -128,8 +128,9 @@ export default function Budgets() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-100 border-t-blue-600" />
+        <p className="text-sm text-gray-400 dark:text-gray-500">Loading budgets…</p>
       </div>
     );
   }
@@ -140,20 +141,20 @@ export default function Budgets() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Monthly Budgets</h1>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-            <button onClick={prevMonth} className="p-1.5 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors text-gray-700 dark:text-gray-300">
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+            <button onClick={prevMonth} className="p-1.5 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-colors text-gray-700 dark:text-gray-300">
               <ChevronLeft size={16} />
             </button>
-            <span className="text-sm font-medium px-2 min-w-[130px] text-center text-gray-900 dark:text-gray-100">
+            <span className="text-sm font-semibold px-2 min-w-[130px] text-center text-gray-900 dark:text-gray-100">
               {MONTH_NAMES[month - 1]} {year}
             </span>
-            <button onClick={nextMonth} className="p-1.5 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors text-gray-700 dark:text-gray-300">
+            <button onClick={nextMonth} className="p-1.5 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-colors text-gray-700 dark:text-gray-300">
               <ChevronRight size={16} />
             </button>
           </div>
           <button
             onClick={() => { setShowForm(true); setError(""); }}
-            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:shadow-md"
           >
             <Plus size={16} />
             Add Budget
@@ -163,21 +164,21 @@ export default function Budgets() {
 
       {/* Add Budget Form */}
       {showForm && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">New Budget</h2>
-            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <button onClick={() => setShowForm(false)} className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
               <X size={20} />
             </button>
           </div>
           {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">{error}</div>
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">{error}</div>
           )}
           <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={formData.categoryId}
               onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select category...</option>
               {availableCategories.map((c) => (
@@ -189,12 +190,12 @@ export default function Budgets() {
               placeholder="Amount (INR)"
               value={formData.amount}
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="w-full sm:w-40 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:w-40 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               min="1"
             />
             <button
               onClick={handleCreate}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm hover:shadow-md"
             >
               Save
             </button>
@@ -204,11 +205,11 @@ export default function Budgets() {
 
       {/* Budget List */}
       {budgets.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center flex flex-col items-center shadow-sm">
           <div className="w-48 mb-6">
             <TargetIllustration />
           </div>
-          <p className="text-gray-900 dark:text-gray-100 font-medium text-lg">No budgets set for this month.</p>
+          <p className="text-gray-900 dark:text-gray-100 font-semibold text-lg">No budgets set for this month.</p>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Add one to start tracking your spending!</p>
         </div>
       ) : (
@@ -219,11 +220,11 @@ export default function Budgets() {
             const isEditing = editingId === budget.id;
 
             return (
-              <div key={budget.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
+              <div key={budget.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{budget.categoryName}</span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
+                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
                       {pct}%
                     </span>
                   </div>
@@ -234,19 +235,19 @@ export default function Budgets() {
                           type="number"
                           value={editAmount}
                           onChange={(e) => setEditAmount(e.target.value)}
-                          className="w-24 px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-24 px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           min="1"
                           autoFocus
                         />
                         <button
                           onClick={() => handleUpdate(budget.id)}
-                          className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition-colors"
+                          className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
                         >
                           <Check size={16} />
                         </button>
                         <button
                           onClick={() => setEditingId(null)}
-                          className="p-1.5 text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition-colors"
+                          className="p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         >
                           <X size={16} />
                         </button>
@@ -255,13 +256,13 @@ export default function Budgets() {
                       <>
                         <button
                           onClick={() => { setEditingId(budget.id); setEditAmount(String(budget.amount)); }}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         >
                           <Pencil size={14} />
                         </button>
                         <button
                           onClick={() => handleDelete(budget.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -270,15 +271,15 @@ export default function Budgets() {
                   </div>
                 </div>
                 {/* Progress bar */}
-                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 mb-2">
+                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3 mb-2">
                   <div
-                    className={`h-2.5 rounded-full transition-all ${colors.bar}`}
+                    className={`h-3 rounded-full transition-all ${colors.bar}`}
                     style={{ width: `${Math.min(pct, 100)}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <span>Spent: {formatCurrency(budget.spent)}</span>
-                  <span>Budget: {formatCurrency(budget.amount)}</span>
+                  <span>Spent: <span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(budget.spent)}</span></span>
+                  <span>Budget: <span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(budget.amount)}</span></span>
                 </div>
               </div>
             );
