@@ -93,8 +93,9 @@ export default function SplitModal({
     try {
       await api.post(`/transactions/${transaction.id}/split`, { splits });
       onSaved();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to save split");
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: string } } };
+      setError(errorResponse.response?.data?.error || "Failed to save split");
     } finally {
       setLoading(false);
     }
@@ -105,8 +106,9 @@ export default function SplitModal({
     try {
       await api.delete(`/transactions/${transaction.id}/split`);
       onSaved();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to remove split");
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: string } } };
+      setError(errorResponse.response?.data?.error || "Failed to remove split");
     } finally {
       setLoading(false);
     }

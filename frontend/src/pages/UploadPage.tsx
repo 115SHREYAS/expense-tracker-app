@@ -16,7 +16,7 @@ export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<unknown>(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -47,8 +47,9 @@ export default function UploadPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setResult(res.data);
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Upload failed");
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: string } } };
+      setError(errorResponse.response?.data?.error || "Upload failed");
     } finally {
       setUploading(false);
     }

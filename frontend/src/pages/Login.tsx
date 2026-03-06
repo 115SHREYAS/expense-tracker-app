@@ -33,8 +33,9 @@ export default function Login() {
         await login(email, password);
       }
       navigate("/");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Something went wrong");
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: string } } };
+      setError(errorResponse.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
     }

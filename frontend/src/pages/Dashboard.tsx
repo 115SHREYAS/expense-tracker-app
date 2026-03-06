@@ -47,39 +47,53 @@ export default function Dashboard() {
   const { resolved } = useTheme();
   const isDark = resolved === "dark";
 
-  const getDateRange = () => {
-    const now = new Date();
-    let startDate: Date;
-    if (period === "week") {
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - 7);
-    } else if (period === "month") {
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - 30);
-    } else {
-      startDate = new Date(now.getFullYear(), 0, 1);
-    }
-    return { startDate: startDate.toISOString(), endDate: now.toISOString() };
-  };
-
   useEffect(() => {
-    const { startDate, endDate } = getDateRange();
-    const now = new Date();
-    setLoading(true);
-    Promise.all([
-      api.get("/analytics/summary", { params: { startDate, endDate } }),
-      api.get("/analytics/by-category", { params: { startDate, endDate } }),
-      api.get("/analytics/over-time", { params: { startDate, endDate, groupBy: period === "year" ? "month" : "day" } }),
-      api.get("/analytics/budget-status", { params: { month: now.getMonth() + 1, year: now.getFullYear() } }),
-    ])
-      .then(([summaryRes, categoryRes, timeRes, budgetRes]) => {
+    const getDateRangeLocal = () => {
+      const currentDate = new Date();
+      let startDate: Date;
+      if (period === "week") {
+        startDate = new Date(currentDate);
+        startDate.setDate(currentDate.getDate() - 7);
+      } else if (period === "month") {
+        startDate = new Date(currentDate);
+        startDate.setDate(currentDate.getDate() - 30);
+      } else {
+        startDate = new Date(currentDate.getFullYear(), 0, 1);
+      }
+      return { startDate: startDate.toISOString(), endDate: currentDate.toISOString() };
+    };
+
+    const fetchDashboardData = async () => {
+      const { startDate, endDate } = getDateRangeLocal();
+      const currentNow = new Date();
+      
+      try {
+        const [summaryRes, categoryRes, timeRes, budgetRes] = await Promise.all([
+          api.get("/analytics/summary", { params: { startDate, endDate } }),
+          api.get("/analytics/by-category", { params: { startDate, endDate } }),
+          api.get("/analytics/over-time", { params: { startDate, endDate, groupBy: period === "year" ? "month" : "day" } }),
+          api.get("/analytics/budget-status", { params: { month: currentNow.getMonth() + 1, year: currentNow.getFullYear() } }),
+        ]);
+        
         setSummary(summaryRes.data);
         setCategoryData(categoryRes.data);
         setTimeData(timeRes.data);
         setBudgetStatuses(budgetRes.data);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    // Instead of calling setLoading(true) synchronously in the effect
+    // We defer it or only call it if we really need to (or let the initial state handle the first load).
+    // In React 18 calling it directly is a warning.
+    // If period changes, we show a spinner
+    setTimeout(() => {
+      setLoading(true);
+      fetchDashboardData();
+    }, 0);
   }, [period]);
 
   const formatCurrency = (amount: number) =>

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import api from "../lib/api";
 
@@ -20,7 +21,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!localStorage.getItem("token"));
 
   useEffect(() => {
     if (token) {
@@ -33,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
     }
   }, [token]);
 

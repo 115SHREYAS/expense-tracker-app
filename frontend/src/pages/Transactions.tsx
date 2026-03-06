@@ -53,7 +53,7 @@ export default function Transactions() {
 
   const exportCSV = async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (filterSearch) params.search = filterSearch;
       if (filterCategory) params.category = filterCategory;
       if (filterPaymentMode) params.paymentMode = filterPaymentMode;
@@ -86,7 +86,7 @@ export default function Transactions() {
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
     try {
-      const params: any = { page, limit: 25 };
+      const params: Record<string, string | number> = { page, limit: 25 };
       if (filterSearch) params.search = filterSearch;
       if (filterCategory) params.category = filterCategory;
       if (filterPaymentMode) params.paymentMode = filterPaymentMode;
@@ -146,12 +146,12 @@ export default function Transactions() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Transactions</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <button
             onClick={exportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="flex-1 sm:flex-none justify-center items-center flex gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="Export current view as CSV"
           >
             <Download size={16} />
@@ -159,7 +159,7 @@ export default function Transactions() {
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
+            className="flex-1 sm:flex-none justify-center items-center flex gap-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
           >
             <Plus size={16} />
             Add Manual
@@ -199,9 +199,9 @@ export default function Transactions() {
             onChange={(e) => { setFilterCategory(e.target.value); setPage(1); }}
             className="px-2.5 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">All Categories</option>
+            <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">All Categories</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.id} value={c.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">{c.name}</option>
             ))}
           </select>
           <select
@@ -209,20 +209,20 @@ export default function Transactions() {
             onChange={(e) => { setFilterPaymentMode(e.target.value); setPage(1); }}
             className="px-2.5 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">All Modes</option>
-            <option value="UPI">UPI</option>
-            <option value="CARD">Card</option>
-            <option value="CASH">Cash</option>
-            <option value="BANK">Bank</option>
+            <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">All Modes</option>
+            <option value="UPI" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">UPI</option>
+            <option value="CARD" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Card</option>
+            <option value="CASH" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Cash</option>
+            <option value="BANK" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Bank</option>
           </select>
           <select
             value={filterType}
             onChange={(e) => { setFilterType(e.target.value); setPage(1); }}
             className="px-2.5 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">All Types</option>
-            <option value="DEBIT">Debit</option>
-            <option value="CREDIT">Credit</option>
+            <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">All Types</option>
+            <option value="DEBIT" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Debit</option>
+            <option value="CREDIT" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Credit</option>
           </select>
           {hasActiveFilters && (
             <button
@@ -281,13 +281,13 @@ export default function Transactions() {
                       <select
                         value={txn.category?.id || ""}
                         onChange={(e) => updateCategory(txn.id, e.target.value)}
-                        className={`text-xs px-2 py-1 rounded-lg border ${
-                          txn.category ? "border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" : "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                        className={`text-xs px-2 py-1 rounded-lg border flex-1 max-w-[140px] ${
+                          txn.category ? "border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" : "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-500"
                         }`}
                       >
-                        <option value="">Uncategorized</option>
+                        <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Uncategorized</option>
                         {categories.map((c) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
+                          <option key={c.id} value={c.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">{c.name}</option>
                         ))}
                       </select>
                     )}
@@ -348,13 +348,13 @@ export default function Transactions() {
                             <select
                               value={txn.category?.id || ""}
                               onChange={(e) => updateCategory(txn.id, e.target.value)}
-                              className={`text-xs px-2 py-1 rounded-lg border ${
-                                txn.category ? "border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" : "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                              className={`text-xs px-2 py-1 rounded-lg border w-full max-w-[160px] ${
+                                txn.category ? "border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" : "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-500"
                               }`}
                             >
-                              <option value="">Uncategorized</option>
+                              <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Uncategorized</option>
                               {categories.map((c) => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
+                                <option key={c.id} value={c.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">{c.name}</option>
                               ))}
                             </select>
                           )}
@@ -477,8 +477,9 @@ function AddTransactionModal({
     try {
       await api.post("/transactions", form);
       onAdded();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to add transaction");
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: string } } };
+      setError(errorResponse.response?.data?.error || "Failed to add transaction");
     } finally {
       setLoading(false);
     }
@@ -541,8 +542,8 @@ function AddTransactionModal({
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="DEBIT">Debit</option>
-                <option value="CREDIT">Credit</option>
+                <option value="DEBIT" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Debit</option>
+                <option value="CREDIT" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Credit</option>
               </select>
             </div>
             <div>
@@ -552,10 +553,10 @@ function AddTransactionModal({
                 onChange={(e) => setForm({ ...form, paymentMode: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="CASH">Cash</option>
-                <option value="UPI">UPI</option>
-                <option value="CARD">Card</option>
-                <option value="BANK">Bank</option>
+                <option value="CASH" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Cash</option>
+                <option value="UPI" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">UPI</option>
+                <option value="CARD" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Card</option>
+                <option value="BANK" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Bank</option>
               </select>
             </div>
             <div>
@@ -565,9 +566,9 @@ function AddTransactionModal({
                 onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Auto</option>
+                <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Auto</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">{c.name}</option>
                 ))}
               </select>
             </div>
